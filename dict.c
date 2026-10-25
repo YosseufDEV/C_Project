@@ -66,7 +66,7 @@ Node* insert_element(Dict *dict, char *key, int value) {
     dict->size++;
 
     if((float)(dict->size)/(dict->capacity) > LOAD_FACTOR) {
-        print_dict(dict);
+        // print_dict(dict);
         expand_dict(dict);
     }
 
@@ -78,6 +78,7 @@ void expand_dict(Dict *dict) {
     int new_capacity = ceil((double)(old_capacity/LOAD_FACTOR)); 
 
     Node **new_table = calloc(new_capacity, sizeof(*new_table));
+    int *new_indicies = calloc(new_capacity, sizeof(*new_indicies));
 
     printf("Expanding Dict! new capcaity %d \n", new_capacity);
 
@@ -86,21 +87,19 @@ void expand_dict(Dict *dict) {
         return;
     }
 
-    for(int i = 0; i < dict->capacity; i++) {
-        if(dict->table[i] != NULL) {
-            Node* n = dict->table[i];
+    for(int i = 0, k=0; i < dict->capacity; i++) {
+        const int i_index = dict->indicies[i];
+        if(dict->table[i_index] != NULL) {
+            Node* n = dict->table[i_index];
             int index = hash(n->key, new_capacity);
-            printf("migrating value %d\n", n->value);
-            if(new_table[index] != NULL) {
-                printf("Error: Key collision at index %d for key '%s'\n", index, n->key);
-            }
             new_table[index] = n;
+            new_indicies[k++] = index;
         }
     }
 
     dict->table = new_table;
+    dict->indicies = new_indicies;
     dict->capacity = new_capacity;
-    print_dict(dict);
 }
 
 int get_element(Dict *dict, char *key) {
@@ -110,7 +109,7 @@ int get_element(Dict *dict, char *key) {
 
 void print_dict(Dict *dict) {
     printf("=======\n");
-    for(int i = 0; i<dict->capacity;i++) {
+    for(int i = 0; i<dict->size;i++) {
         int index = dict->indicies[i];
         if(dict->table[index]!=NULL) {
             printf("i{%d}: %d\n", index, dict->table[index]->value);

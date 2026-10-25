@@ -1,18 +1,15 @@
 #ifndef DICT_H
 #define DICT_H
 
-#define CAPACITY 100
+#define CAPACITY 10
 #define MAX_STR 1000
 #define LOAD_FACTOR 0.75
 
-/* TODO: Make this take an array of integers and a string_flag 
- * if string_flag is true, then the value will be a string instead of an integer */
 typedef struct Node {
     int value;
     char* key;
 } Node;
 
-/* TODO: use the dynamic list to replace this static node array, so that we can have a dynamic hashmap */
 typedef struct Hashmap {
     Node **table;
     int *indicies;
