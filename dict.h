@@ -1,7 +1,7 @@
 #ifndef DICT_H
 #define DICT_H
 
-#define MAX_EL 1000
+#define CAPACITY 100
 #define MAX_STR 1000
 #define LOAD_FACTOR 0.75
 
@@ -9,19 +9,23 @@
  * if string_flag is true, then the value will be a string instead of an integer */
 typedef struct Node {
     int value;
+    char* key;
 } Node;
 
 /* TODO: use the dynamic list to replace this static node array, so that we can have a dynamic hashmap */
 typedef struct Hashmap {
-    Node *table[MAX_EL];
+    Node **table;
+    int *indicies;
     int size;
-    int (*insert)(struct Hashmap *dict, char *key, int value);
-    int (*get)(struct Hashmap *dict, char *key);
+    int capacity;
 } Dict;
 
-int insert_element(Dict *dict, char *key, int value);
+Dict* initialize_dict();
+void free_dict(Dict *);
+void expand_dict(Dict *dict);
+void print_dict(Dict *dict);
+Node* insert_element(Dict *dict, char *key, int value);
 int get_element(Dict *dict, char *key);
-
-int hash(char *key);
+int hash(char *key, int capacity);
 
 #endif
