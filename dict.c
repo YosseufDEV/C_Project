@@ -85,10 +85,10 @@ int insert_element(Dict *dict, char *key, int value) {
 
     dict->size++;
 
-    // if((float)(dict->size)/(dict->capacity) > LOAD_FACTOR) {
-    //     resize_dict(dict);
-    // }
-    //
+    if((float)(dict->size)/(dict->capacity) > LOAD_FACTOR) {
+        resize_dict(dict);
+    }
+
     return index;
 }
 
@@ -107,17 +107,19 @@ int resize_dict(Dict *dict) {
     }
 
     Node** old_table = dict->table;
+
     dict->capacity = new_capacity;
     dict->table = new_table;
+    // Reset the size to 0 before rehashing the elements
+    dict->size=0;
 
     for(int i = 0, k=0; i < old_capacity; i++) {
-        // const int i_index = dict->indicies[i];
         if(old_table[i] != NULL) {
             Node* n = old_table[i];
 
             int ni = insert_element(dict, n->key, n->value);
 
-            // printf("Rehashing key %s from old index %d to new index %d\n", n->key, i_index, ni);
+            printf("Rehashing key %s, value %d from old index %d to new index %d\n", n->key, n->value, i, ni);
 
             if(ni == -1) {
                 printf("Error: Rehashing failed for key %s\n", n->key);
@@ -125,11 +127,8 @@ int resize_dict(Dict *dict) {
             }
 
             free(n);
-
             // This throws a bug for some reason!.
             // free(n);
-
-            // new_indicies[k++] = ni;
         }
     }
 
@@ -172,11 +171,11 @@ int main() {
     insert_element(d, "key1", 1);
     insert_element(d, "key2", 2);
     insert_element(d, "key3", 3);
+    insert_element(d, "key4", 4);
     insert_element(d, "key5", 5);
     insert_element(d, "key6", 6);
     insert_element(d, "key7", 7);
     insert_element(d, "key8", 8);
-    resize_dict(d);
 
     print_dict_by_index(d);
 
