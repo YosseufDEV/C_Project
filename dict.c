@@ -56,7 +56,7 @@ void free_map(Dict *dict) {
     free(dict);
 }
 
-int insert_element(Dict *dict, char *key, int value) {
+int insert_element(Dict *dict, char *key, void* value, NODE_VALUE_TYPE type) {
     int index = hash(key, dict->capacity);
     Node* node = malloc(sizeof(Node));
 
@@ -67,6 +67,7 @@ int insert_element(Dict *dict, char *key, int value) {
 
     node->value = value;
     node->key = key;
+    node->type=type;
 
     // INFO : Collision Logic
     if(dict->table[index] != NULL) {
@@ -132,7 +133,7 @@ int resize_dict(Dict *dict) {
 
             new_table[index] = n;
 
-            printf("Rehashsed key %s, value %d from old index %d to new index %d\n", n->key, n->value, i, index);
+            printf("Rehashsed key %s from old index %d to new index %d\n", n->key, i, index);
 
         }
     }
@@ -149,7 +150,7 @@ int resize_dict(Dict *dict) {
     return new_capacity;
 }
 
-int* get_element(Dict *dict, char *key) {
+void* get_element(Dict *dict, char *key) {
     int index = hash(key, dict->capacity);
 
     Node* n = dict->table[index];
@@ -184,7 +185,18 @@ void print_dict(Dict *dict) {
     for(int i = 0; i<dict->size;i++) {
         int index = dict->indicies[i];
         if(dict->table[index]!=NULL) {
-            printf("i{%d}:- (%s): %d\n", index, dict->table[index]->key, dict->table[index]->value);
+            switch(dict->table[index]->type) {
+                case PTR_INT:
+                    printf("i{%d}:- (%s): %d\n", index, dict->table[index]->key, *(int*)dict->table[index]->value);
+                    break;
+                case PTR_STR:
+                    printf("i{%d}:- (%s): %s\n", index, dict->table[index]->key, (char*)dict->table[index]->value);
+                    break;
+                default:
+                    printf("UNHANDLED_TYPE\n");
+                    break;
+            }
+            printf("i{%d}:- (%s): %d\n", index, dict->table[index]->key, *(int*)dict->table[index]->value);
         }
     }
     printf("=======\n");
@@ -194,7 +206,17 @@ void print_dict_by_index(Dict *dict) {
     printf("=======\n");
     for(int i = 0; i<dict->capacity;i++) {
         if(dict->table[i]!=NULL) {
-            printf("i{%d}:- (%s): %d\n", i, dict->table[i]->key, dict->table[i]->value);
+            switch(dict->table[i]->type) {
+                case PTR_INT:
+                    printf("i{%d}:- (%s): %d\n", i, dict->table[i]->key, *(int*)dict->table[i]->value);
+                    break;
+                case PTR_STR:
+                    printf("i{%d}:- (%s): %s\n", i, dict->table[i]->key, (char*)dict->table[i]->value);
+                    break;
+                default:
+                    printf("UNHANDLED_TYPE\n");
+                    break;
+            }
         }
     }
     printf("=======\n");
@@ -203,38 +225,10 @@ void print_dict_by_index(Dict *dict) {
 int main() {
     Dict *d = initialize_dict(1);
 
-    insert_element(d, "strength", 1);
-    insert_element(d, "elephant", 2);
-    insert_element(d, "adolf", 3);
-    insert_element(d, "bankai", 4);
-    insert_element(d, "test92180asdk_", 5);
-    insert_element(d, "hell$*!()@*$()!@DI)!@(JD)(!@&U)!@(*U&*!*()@oworld:", 6);
-    insert_element(d, "yesimalive", 7);
-    insert_element(d, "tobeornottobe", 8);
+    insert_element(d, "test1", &(int){169}, PTR_INT);
+    insert_element(d, "test2", "Test", PTR_STR);
 
     print_dict_by_index(d);
-
-    printf("\n");
-
-    printf("get elements by keys!\n");
-    printf("strength: %d\n", *get_element(d, "strength"));
-    printf("elephant: %d\n", *get_element(d, "elephant"));
-    printf("adolf: %d\n", *get_element(d, "adolf"));
-    printf("bankai: %d\n", *get_element(d, "bankai"));
-    printf("test92180asdk_: %d\n", *get_element(d, "test92180asdk_"));
-    printf("hell$*!()@*$()!@DI)!@(JD)(!@&U)!@(*U&*!*()@oworld: %d\n", *get_element(d, "hell$*!()@*$()!@DI)!@(JD)(!@&U)!@(*U&*!*()@oworld:"));
-    printf("yesimalive: %d\n", *get_element(d, "yesimalive"));
-    printf("tobeornottobe: %d\n", *get_element(d, "tobeornottobe"));
-
-    {
-        const char *nonexistent_key = "keythatdoesnotexist";
-        int *value_ptr = get_element(d, (char *)nonexistent_key);
-        if(value_ptr != NULL) {
-            printf("%s: %d\n", nonexistent_key, *value_ptr);
-        } else {
-            printf("%s: Key does not exist in the dictionary.\n", nonexistent_key);
-        }
-    }
 
     free_map(d);
 
