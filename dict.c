@@ -73,7 +73,7 @@ int insert_element(Dict *dict, char *key, void* value, NODE_VALUE_TYPE type) {
     if(dict->table[index] != NULL) {
         printf("Collision for key %s with key %s at index %d\n", key, dict->table[index]->key, index);
 
-        print_dict_by_index(dict);
+        print_dict_unordered(dict);
 
         printf("\n");
         while(dict->table[index] != NULL) {
@@ -84,14 +84,13 @@ int insert_element(Dict *dict, char *key, void* value, NODE_VALUE_TYPE type) {
 
     }
 
-    dict->size++;
     dict->table[index] = node;
+    dict->indicies[dict->size++]=index;
 
     printf("\nindex i{%d}, inserted key %s\n", index, dict->table[index]->key);
-    print_dict_by_index(dict);
+    print_dict_unordered(dict);
     printf("\n");
 
-    // dict->indicies[dict->size]=index;
 
     if(dict->table[index] == NULL) {
         printf("Error: Memory allocation failed for node\n");
@@ -120,9 +119,11 @@ int resize_dict(Dict *dict) {
         return -1;
     }
 
-    for(int i = 0, k=0; i < old_capacity; i++) {
-        if(dict->table[i] != NULL) {
-            Node* n = dict->table[i];
+    for(int i = 0, k=0; i < dict->size; i++) {
+        int indicie_index = dict->indicies[i];
+
+        if(dict->table[indicie_index] != NULL) {
+            Node* n = dict->table[indicie_index];
             int index = hash(n->key, new_capacity);
 
             if(new_table[index] != NULL) {
@@ -132,6 +133,7 @@ int resize_dict(Dict *dict) {
             }
 
             new_table[index] = n;
+            dict->indicies[k++]=index;
 
             printf("Rehashsed key %s from old index %d to new index %d\n", n->key, i, index);
 
@@ -143,9 +145,7 @@ int resize_dict(Dict *dict) {
     dict->table = new_table;
 
     printf("New Dict after resizing:\n");
-    print_dict_by_index(dict);
-
-    dict->indicies = new_indicies;
+    print_dict_unordered(dict);
 
     return new_capacity;
 }
@@ -168,7 +168,7 @@ void* get_element(Dict *dict, char *key) {
         for(int i = 0; i < dict->capacity; i++) {
             Node* s = dict->table[i];
             if(s != NULL && strcmp(s->key, key) == 0 ) {
-                return &(s->value); 
+                return s->value; 
             }
         }
 
@@ -176,47 +176,44 @@ void* get_element(Dict *dict, char *key) {
         return NULL;
     }
 
-    return &n->value;
-
+    return n->value;
 }
 
-void print_dict(Dict *dict) {
+void print_value(void* value, NODE_VALUE_TYPE type) {
+    switch(type) {
+        case PTR_INT:
+            printf("%d\n", *(int*)value);
+            break;
+        case PTR_STR:
+            printf("%s\n", (char*)value);
+            break;
+        case PTR_CHAR:
+            printf("%c\n", *(char*)value);
+            break;
+        default:
+            printf("UNHANDLED_TYPE\n");
+            break;
+    }
+}
+
+void print_dict_ordered(Dict *dict) {
     printf("=======\n");
     for(int i = 0; i<dict->size;i++) {
         int index = dict->indicies[i];
         if(dict->table[index]!=NULL) {
-            switch(dict->table[index]->type) {
-                case PTR_INT:
-                    printf("i{%d}:- (%s): %d\n", index, dict->table[index]->key, *(int*)dict->table[index]->value);
-                    break;
-                case PTR_STR:
-                    printf("i{%d}:- (%s): %s\n", index, dict->table[index]->key, (char*)dict->table[index]->value);
-                    break;
-                default:
-                    printf("UNHANDLED_TYPE\n");
-                    break;
-            }
-            printf("i{%d}:- (%s): %d\n", index, dict->table[index]->key, *(int*)dict->table[index]->value);
+            printf("i{%d}:- (%s): ", index, dict->table[index]->key);
+            print_value(dict->table[index]->value, dict->table[index]->type);
         }
     }
     printf("=======\n");
 }
 
-void print_dict_by_index(Dict *dict) {
+void print_dict_unordered(Dict *dict) {
     printf("=======\n");
     for(int i = 0; i<dict->capacity;i++) {
         if(dict->table[i]!=NULL) {
-            switch(dict->table[i]->type) {
-                case PTR_INT:
-                    printf("i{%d}:- (%s): %d\n", i, dict->table[i]->key, *(int*)dict->table[i]->value);
-                    break;
-                case PTR_STR:
-                    printf("i{%d}:- (%s): %s\n", i, dict->table[i]->key, (char*)dict->table[i]->value);
-                    break;
-                default:
-                    printf("UNHANDLED_TYPE\n");
-                    break;
-            }
+            printf("i{%d}:- (%s): ", i, dict->table[i]->key);
+            print_value(dict->table[i]->value, dict->table[i]->type);
         }
     }
     printf("=======\n");
@@ -225,10 +222,26 @@ void print_dict_by_index(Dict *dict) {
 int main() {
     Dict *d = initialize_dict(1);
 
-    insert_element(d, "test1", &(int){169}, PTR_INT);
-    insert_element(d, "test2", "Test", PTR_STR);
+    {
+        insert_element(d, "test1", &(int){169}, PTR_INT);
+        insert_element(d, "j@()JD!()*@HJRF(*!@YHR()*!@HD(*!@Hd98!@&Hdfska", "Test", PTR_STR);
+        insert_element(d, "klaskdaop", &(int){169}, PTR_INT);
+        insert_element(d, "\0i22-_901jf90c1jrf091h298h59e812hd19287hd912@", "Test", PTR_STR);
+        insert_element(d, "12903981290-id21k90kd+_)21k9-d()@$!)@(JD1289dj1", &(char){'t'}, PTR_CHAR);
+        insert_element(d, "jd21309dk2901gj9302g89h02fwoifj012jj0@()!(J(@j", &(char){'t'}, PTR_CHAR);
+    }
 
-    print_dict_by_index(d);
+    print_dict_ordered(d);
+
+    {
+        void* ptr = get_element(d, "12903981290-id21k90kd+_)21k9-d()@$!)@(JD1289dj1");
+
+        if(ptr != NULL) {
+            printf("%c\n", *(char*)ptr);
+        } else {
+            printf("Key does not exist in dict!\n");
+        }
+    }
 
     free_map(d);
 
