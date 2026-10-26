@@ -20,5 +20,5 @@ int resize_dict(Dict *);
 void print_dict_by_index(Dict *);
 void print_dict(Dict *);
 int insert_element(Dict *, char *key, int value);
-int get_element(Dict *, char *key);
+int* get_element(Dict *, char *key);
 int hash(char *key, int capacity);

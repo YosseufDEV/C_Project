@@ -158,7 +158,7 @@ int resize_dict(Dict *dict) {
     return new_capacity;
 }
 
-int get_element(Dict *dict, char *key) {
+int* get_element(Dict *dict, char *key) {
     int index = hash(key, dict->capacity);
 
     printf("Searching for key %s at index %d\n", key, index);
@@ -167,7 +167,7 @@ int get_element(Dict *dict, char *key) {
 
     if(n == NULL) {
         printf("Key does not exist in this dict!\n");
-        return -1;
+        return NULL;
     }
 
     if(strcmp(n->key, key) != 0) {
@@ -176,15 +176,15 @@ int get_element(Dict *dict, char *key) {
         for(int i = 0; i < dict->capacity; i++) {
             Node* s = dict->table[i];
             if(s != NULL && strcmp(s->key, key) == 0 ) {
-                return s->value; 
+                return &(s->value); 
             }
         }
 
         printf("Key does not exist in this dict!\n");
-        return -1;
+        return NULL;
     }
 
-    return n->value;
+    return &n->value;
 
 }
 
@@ -217,7 +217,7 @@ int main() {
     insert_element(d, "adolf", 3);
     insert_element(d, "bankai", 4);
     insert_element(d, "test92180asdk_", 5);
-    insert_element(d, "helloworld", 6);
+    insert_element(d, "hell$*!()@*$()!@DI)!@(JD)(!@&U)!@(*U&*!*()@oworld:", 6);
     insert_element(d, "yesimalive", 7);
     insert_element(d, "tobeornottobe", 8);
 
@@ -226,16 +226,24 @@ int main() {
     printf("\n");
 
     printf("get elements by keys!\n");
-    printf("strength: %d\n", get_element(d, "strength"));
-    printf("elephant: %d\n", get_element(d, "elephant"));
-    printf("adolf: %d\n", get_element(d, "adolf"));
-    printf("bankai: %d\n", get_element(d, "bankai"));
-    printf("test92180asdk_: %d\n", get_element(d, "test92180asdk_"));
-    printf("helloworld: %d\n", get_element(d, "helloworld"));
-    printf("yesimalive: %d\n", get_element(d, "yesimalive"));
-    printf("tobeornottobe: %d\n", get_element(d, "tobeornottobe"));
+    printf("strength: %d\n", *get_element(d, "strength"));
+    printf("elephant: %d\n", *get_element(d, "elephant"));
+    printf("adolf: %d\n", *get_element(d, "adolf"));
+    printf("bankai: %d\n", *get_element(d, "bankai"));
+    printf("test92180asdk_: %d\n", *get_element(d, "test92180asdk_"));
+    printf("hell$*!()@*$()!@DI)!@(JD)(!@&U)!@(*U&*!*()@oworld: %d\n", *get_element(d, "hell$*!()@*$()!@DI)!@(JD)(!@&U)!@(*U&*!*()@oworld:"));
+    printf("yesimalive: %d\n", *get_element(d, "yesimalive"));
+    printf("tobeornottobe: %d\n", *get_element(d, "tobeornottobe"));
 
-    printf("keythatdoesnotexist: %d\n", get_element(d, "keythatdoesnotexist"));
+    {
+        const char *nonexistent_key = "keythatdoesnotexist";
+        int *value_ptr = get_element(d, (char *)nonexistent_key);
+        if(value_ptr != NULL) {
+            printf("%s: %d\n", nonexistent_key, *value_ptr);
+        } else {
+            printf("%s: Key does not exist in the dictionary.\n", nonexistent_key);
+        }
+    }
 
     free_map(d);
 
