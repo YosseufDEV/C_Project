@@ -83,8 +83,8 @@ int insert_element(Dict *dict, char *key, int value) {
 
     }
 
-    dict->table[index] = node;
     dict->size++;
+    dict->table[index] = node;
 
     printf("\nindex i{%d}, inserted key %s\n", index, dict->table[index]->key);
     print_dict_by_index(dict);
@@ -97,6 +97,7 @@ int insert_element(Dict *dict, char *key, int value) {
         return -1;
     }
 
+    printf("%f %% load_factor\n", (float)(dict->size)/(dict->capacity)*100);
     if((float)(dict->size)/(dict->capacity) >= LOAD_FACTOR) {
         resize_dict(dict);
     }
@@ -124,8 +125,8 @@ int resize_dict(Dict *dict) {
             int index = hash(n->key, new_capacity);
 
             if(new_table[index] != NULL) {
-                while(dict->table[index] != NULL) {
-                    index = (index+1)%dict->capacity; 
+                while(new_table[index] != NULL) {
+                    index = (index+1)%new_capacity; 
                 }
             }
 
@@ -139,10 +140,8 @@ int resize_dict(Dict *dict) {
     free(dict->table);
     dict->capacity = new_capacity;
     dict->table = new_table;
-    // Reset the size to 0 before rehashing the elements
-    dict->size=0;
 
-    printf("New Dict after rehashing:\n");
+    printf("New Dict after resizing:\n");
     print_dict_by_index(dict);
 
     dict->indicies = new_indicies;
@@ -202,7 +201,7 @@ void print_dict_by_index(Dict *dict) {
 }
 
 int main() {
-    Dict *d = initialize_dict(10);
+    Dict *d = initialize_dict(1);
 
     insert_element(d, "strength", 1);
     insert_element(d, "elephant", 2);
