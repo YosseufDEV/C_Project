@@ -4,6 +4,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+struct Dict {
+    Node **table;
+    int *indicies;
+    int size;
+    int capacity;
+};
+
 int hash(char *key, int capacity) {
     int s = 0;
     unsigned long hash = 5381;
@@ -47,7 +54,7 @@ Dict* initialize_dict(int capacity) {
     return dict;
 }
 
-void free_map(Dict *dict) {
+void free_dict(Dict *dict) {
     for(int i = 0; i < dict->capacity; i++) {
         if(dict->table[i] != NULL) {
             free(dict->table[i]);
@@ -56,7 +63,7 @@ void free_map(Dict *dict) {
     free(dict);
 }
 
-int insert_element(Dict *dict, char *key, void* value, NODE_VALUE_TYPE type) {
+int set(Dict *dict, char *key, Value value) {
     int index = hash(key, dict->capacity);
     Node* node = malloc(sizeof(Node));
 
@@ -67,7 +74,7 @@ int insert_element(Dict *dict, char *key, void* value, NODE_VALUE_TYPE type) {
 
     node->value = value;
     node->key = key;
-    node->type=type;
+    node->value=value;
 
     // INFO : Collision Logic
     if(dict->table[index] != NULL) {
@@ -110,7 +117,6 @@ int resize_dict(Dict *dict) {
     int new_capacity = ceil((double)old_capacity/LOAD_FACTOR); 
 
     Node **new_table = calloc(new_capacity, sizeof(*new_table));
-    int *new_indicies = calloc(new_capacity, sizeof(*new_indicies));
 
     printf("Expanding Dict! new capcaity %d \n", new_capacity);
 
@@ -119,7 +125,7 @@ int resize_dict(Dict *dict) {
         return -1;
     }
 
-    for(int i = 0, k=0; i < dict->size; i++) {
+    for(int i = 0, k=0; i < len(dict); i++) {
         int indicie_index = dict->indicies[i];
 
         if(dict->table[indicie_index] != NULL) {
@@ -150,7 +156,7 @@ int resize_dict(Dict *dict) {
     return new_capacity;
 }
 
-void* get_element(Dict *dict, char *key) {
+void* get(Dict *dict, char *key) {
     int index = hash(key, dict->capacity);
 
     Node* n = dict->table[index];
@@ -198,7 +204,7 @@ void print_value(void* value, NODE_VALUE_TYPE type) {
 
 void print_dict_ordered(Dict *dict) {
     printf("=======\n");
-    for(int i = 0; i<dict->size;i++) {
+    for(int i = 0; i<len(dict);i++) {
         int index = dict->indicies[i];
         if(dict->table[index]!=NULL) {
             printf("i{%d}:- (%s): ", index, dict->table[index]->key);
@@ -219,31 +225,24 @@ void print_dict_unordered(Dict *dict) {
     printf("=======\n");
 }
 
-int main() {
-    Dict *d = initialize_dict(1);
+struct Value integer(int value) {
+    int *ptr = malloc(sizeof(int));
+    ptr[0] = value;
+    struct Value i = { .ptr.integer=ptr, .type=PTR_INT };
+    return i;
+}
 
-    {
-        insert_element(d, "test1", &(int){169}, PTR_INT);
-        insert_element(d, "j@()JD!()*@HJRF(*!@YHR()*!@HD(*!@Hd98!@&Hdfska", "Test", PTR_STR);
-        insert_element(d, "klaskdaop", &(int){169}, PTR_INT);
-        insert_element(d, "\0i22-_901jf90c1jrf091h298h59e812hd19287hd912@", "Test", PTR_STR);
-        insert_element(d, "12903981290-id21k90kd+_)21k9-d()@$!)@(JD1289dj1", &(char){'t'}, PTR_CHAR);
-        insert_element(d, "jd21309dk2901gj9302g89h02fwoifj012jj0@()!(J(@j", &(char){'t'}, PTR_CHAR);
-    }
+struct Value character(char value) {
+    char *ptr = malloc(sizeof(char));
+    ptr[0] = value;
+    struct Value i = { .ptr.character=ptr, .type=PTR_INT };
+    return i;
+}
 
-    print_dict_ordered(d);
+int len(Dict *dict) {
+    return dict->size;
+}
 
-    {
-        void* ptr = get_element(d, "12903981290-id21k90kd+_)21k9-d()@$!)@(JD1289dj1");
-
-        if(ptr != NULL) {
-            printf("%c\n", *(char*)ptr);
-        } else {
-            printf("Key does not exist in dict!\n");
-        }
-    }
-
-    free_map(d);
-
-    return 0;
+int capacity(Dict *dict) {
+    return dict->capacity;
 }
