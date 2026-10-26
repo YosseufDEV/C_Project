@@ -75,30 +75,19 @@ int insert_element(Dict *dict, char *key, int value) {
         print_dict_by_index(dict);
 
         printf("\n");
-        while(index < dict->capacity && dict->table[++index] != NULL); 
+        while(dict->table[index] != NULL) {
+            index = (index+1)%dict->capacity; 
+        }
 
         printf("Found empty spot at i{%d}\n", index);
 
-        if(index == dict->capacity) {
-            printf("Reached end of array resizing dict to find empty index.\n");
-            Node** temp = realloc(dict->table, (dict->capacity+1)*sizeof(Node*));
-            if(temp == NULL) {
-                printf("Error: Memory reallocation failed for dict->table\n");
-                return -1;
-            }
-            dict->table = temp;
-            dict->capacity++;
-            
-            // resize_dict(dict);
-        }
     }
 
     dict->table[index] = node;
     dict->size++;
 
-    printf("\n");
-        printf("index i{%d}, inserted key %s\n", index, dict->table[index]->key);
-        print_dict_by_index(dict);
+    printf("\nindex i{%d}, inserted key %s\n", index, dict->table[index]->key);
+    print_dict_by_index(dict);
     printf("\n");
 
     // dict->indicies[dict->size]=index;
@@ -129,31 +118,29 @@ int resize_dict(Dict *dict) {
         return -1;
     }
 
-    Node** old_table = dict->table;
+    for(int i = 0, k=0; i < old_capacity; i++) {
+        if(dict->table[i] != NULL) {
+            Node* n = dict->table[i];
+            int index = hash(n->key, new_capacity);
 
+            if(new_table[index] != NULL) {
+                while(dict->table[index] != NULL) {
+                    index = (index+1)%dict->capacity; 
+                }
+            }
+
+            new_table[index] = n;
+
+            printf("Rehashsed key %s, value %d from old index %d to new index %d\n", n->key, n->value, i, index);
+
+        }
+    }
+
+    free(dict->table);
     dict->capacity = new_capacity;
     dict->table = new_table;
     // Reset the size to 0 before rehashing the elements
     dict->size=0;
-
-    for(int i = 0, k=0; i < old_capacity; i++) {
-        if(old_table[i] != NULL) {
-            Node* n = old_table[i];
-
-            int ni = insert_element(dict, n->key, n->value);
-
-            printf("Rehashsed key %s, value %d from old index %d to new index %d\n", n->key, n->value, i, ni);
-
-            if(ni == -1) {
-                printf("Error: Rehashing failed for key %s\n", n->key);
-                return -1;
-            }
-
-            free(n);
-        }
-    }
-
-    free(old_table);
 
     printf("New Dict after rehashing:\n");
     print_dict_by_index(dict);
@@ -166,8 +153,6 @@ int resize_dict(Dict *dict) {
 int* get_element(Dict *dict, char *key) {
     int index = hash(key, dict->capacity);
 
-    printf("Searching for key %s at index %d\n", key, index);
-
     Node* n = dict->table[index];
 
     if(n == NULL) {
@@ -176,7 +161,9 @@ int* get_element(Dict *dict, char *key) {
     }
 
     if(strcmp(n->key, key) != 0) {
-        printf("Key at index is not the same as the requested key. Searching for the correct key...\n");
+        printf("\n=======\n");
+        printf("Key %s at index %d is not the same as the requested key. Searching for the correct key...\n", key, index);
+        printf("=======\n\n");
 
         for(int i = 0; i < dict->capacity; i++) {
             Node* s = dict->table[i];
