@@ -17,7 +17,12 @@ int hash(char *key, int capacity) {
     return hash % capacity;
 }
 
-Dict* initialize_dict() {
+Dict* initialize_dict(int capacity) {
+    if(capacity <= 0) {
+        printf("Error: Invalid capacity for dictionary\n");
+        return NULL;
+    }
+
     Dict *dict = malloc(sizeof(Dict));
 
     if(dict == NULL) {
@@ -25,8 +30,8 @@ Dict* initialize_dict() {
         return NULL;
     }
 
-    dict->table = calloc(CAPACITY, sizeof *dict->table);
-    dict->indicies = calloc(CAPACITY, sizeof *dict->table);
+    dict->table = calloc(capacity, sizeof *dict->table);
+    dict->indicies = calloc(capacity, sizeof *dict->table);
 
     if(dict->table == NULL || dict->indicies == NULL) {
         printf("Error: Memory allocation failed for dictionary table or indicies\n");
@@ -34,9 +39,9 @@ Dict* initialize_dict() {
     }
 
     dict->size = 0;
-    dict->capacity = CAPACITY;
+    dict->capacity = capacity;
 
-    for(int i = 0; i < CAPACITY; i++) {
+    for(int i = 0; i < capacity; i++) {
         dict->table[i] = NULL;
     }
     return dict;
@@ -103,7 +108,7 @@ int insert_element(Dict *dict, char *key, int value) {
         return -1;
     }
 
-    if((float)(dict->size)/(dict->capacity) > LOAD_FACTOR) {
+    if((float)(dict->size)/(dict->capacity) >= LOAD_FACTOR) {
         resize_dict(dict);
     }
 
@@ -210,7 +215,7 @@ void print_dict_by_index(Dict *dict) {
 }
 
 int main() {
-    Dict *d = initialize_dict();
+    Dict *d = initialize_dict(10);
 
     insert_element(d, "strength", 1);
     insert_element(d, "elephant", 2);

@@ -14,7 +14,7 @@ typedef struct Hashmap {
     int capacity;
 } Dict;
 
-Dict* initialize_dict();
+Dict* initialize_dict(int);
 void free_dict(Dict *);
 int resize_dict(Dict *);
 void print_dict_by_index(Dict *);
