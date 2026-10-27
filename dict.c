@@ -140,10 +140,10 @@ int resize_dict(Dict *dict) {
         return -1;
     }
 
-    Node *n = dict->first;
+    Node **n = &dict->first;
 
-    while(n != NULL) {
-        int index = hash(n->key, new_capacity);
+    while(*n != NULL) {
+        int index = hash((*n)->key, new_capacity);
 
         if(new_table[index] != NULL) {
             while(new_table[index] != NULL) {
@@ -152,11 +152,11 @@ int resize_dict(Dict *dict) {
             }
         }
 
-        n->index = index;
-        printf("Rehashing key %s to index %d\n", n->key, index);
-        new_table[index] = n;
+        (*n)->index = index;
+        printf("Rehashing key %s to index %d\n", (*n)->key, index);
+        new_table[index] = *n;
 
-        n = n->next;
+        n = &(*n)->next;
     }
 
     free(dict->table);
@@ -198,6 +198,34 @@ Value get_dict(Dict *dict, char *key) {
     return n->value;
 }
 
+Node* get_dict_ptr(Dict *dict, char *key) {
+    int index = hash(key, dict->capacity);
+    Node* n = dict->table[index];
+
+    if(n == NULL) {
+        printf("Key does not exist in this dict!\n");
+        return NULL;
+    }
+
+    if(strcmp((n)->key, key) != 0) {
+        printf("\n=======\n");
+        printf("Key %s at index %d is not the same as the requested key. Searching for the correct key...\n", key, index);
+        printf("=======\n\n");
+
+        for(int i = 0; i < dict->capacity; i++) {
+            Node* s = dict->table[i];
+            if(s != NULL && strcmp(s->key, key) == 0 ) {
+                return dict->table[i]; 
+            }
+        }
+
+        printf("Key does not exist in this dict!\n");
+        return NULL;
+    }
+
+    return n;
+}
+
 Value popitem_dict(Dict* d) {
     if(d->last == NULL) {
         printf("Dictionary is empty!");
@@ -208,27 +236,57 @@ Value popitem_dict(Dict* d) {
 
     Node* t = d->last->prev;
 
+    d->table[d->last->index] = NULL;
+
     free(d->last);
 
     if(t != NULL) {
         d->last = t;
         d->last->next=NULL;
+    } else {
+        d->last=d->first=NULL;
     }
-
-    d->last=d->first=NULL;
 
     return last_value;
 }
 
+Value pop_dict(Dict* dict, char* key) {
+    Node* n = get_dict_ptr(dict, key);
+
+    if(n == NULL) {
+        return null();
+    }
+
+    if(strcmp(dict->first->key, n->key) == 0) {
+        printf("I'm the first element!\n");
+        dict->first= dict->first->next;
+    }
+
+    if(strcmp(dict->last->key, n->key) == 0) {
+        printf("I'm the last element!\n");
+        dict->last =  dict->last->prev;
+    }
+
+    if(n->next != NULL) {
+        n->next->prev = n->prev;
+    }
+    
+    if(n->prev != NULL) {
+        n->prev->next = n->next;
+    }
+
+    Value v = n->value;
+
+    dict->table[n->index] = NULL;
+
+    free(n);
+
+    return v;
+}
+
 void print_dict_ordered(Dict *dict) {
     printf("=======\n");
-    // for(int i = 0; i<len_dict(dict);i++) {
-    //     int index = dict->indicies[i];
-    //     if(dict->table[index]!=NULL) {
-    //         printf("i{%d}:- (%s): ", index, dict->table[index]->key);
-    //         print_value(dict->table[index]->value);
-    //     }
-    // }
+
     Node *n = dict->first;
 
     while(n!= NULL) {
@@ -258,8 +316,20 @@ void clear_dict(Dict *dict) {
         free(dict->last);
         dict->last = temp;
     }
-    dict->last = dict->first = NULL;
-    // dict->last = dict->first = NULL;
+
+    dict->last = NULL;
+    dict->first = NULL;
+    Node** cleared_table = calloc(dict->capacity, sizeof(*dict->table));
+
+    if(cleared_table == NULL) {
+        printf("Failed to clear dictionary!");
+        return;
+    }
+
+    free(dict->table);
+
+    dict->size=0;
+    dict->table = cleared_table;
 }
 
 void free_dict(Dict *dict) {
@@ -271,6 +341,6 @@ int len_dict(Dict *dict) {
     return dict->size;
 }
 
-int capacity(Dict *dict) {
+int capacity_dict(Dict *dict) {
     return dict->capacity;
 }

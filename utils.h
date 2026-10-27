@@ -26,6 +26,8 @@ typedef struct Value {
     ValuePtr ptr;
 } Value;
 
+typedef struct Value Value;
+
 void print_value(Value);
 Value string(char*);
 Value integer(int);
