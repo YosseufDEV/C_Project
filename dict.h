@@ -1,33 +1,10 @@
 #ifndef DICT_H
 #define DICT_H
 
+#include "utils.h"
+
 #define CAPACITY 100
 #define LOAD_FACTOR 0.75
-
-typedef enum {
-    PTR_NULL,
-    PTR_STR,
-    PTR_INT,
-    PTR_FLOAT,
-    PTR_DOUBLE,
-    PTR_CHAR,
-    PTR_ARBITRARY
-} NODE_VALUE_TYPE;
-
-typedef union {
-    char null;
-    char* string;
-    int integer;
-    float float_;
-    double double_;
-    void* ptr;
-    char character;
-} ValuePtr;
-
-typedef struct Value {
-    NODE_VALUE_TYPE type;
-    ValuePtr ptr;
-} Value;
 
 typedef struct Node {
     Value value;
@@ -47,13 +24,5 @@ int len(Dict *);
 int capacity(Dict *);
 Value get(Dict *, char *key);
 int hash(char *key, int capacity);
-
-Value string(char*);
-Value integer(int);
-Value float_(float);
-Value arbitrary(void*);
-Value double_(double);
-Value character(char);
-Value null(void);
 
 #endif
