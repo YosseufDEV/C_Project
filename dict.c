@@ -156,14 +156,15 @@ int resize_dict(Dict *dict) {
     return new_capacity;
 }
 
-void* get(Dict *dict, char *key) {
+Value get(Dict *dict, char *key) {
     int index = hash(key, dict->capacity);
+    const Value null_value = {.ptr.null=1}; // Create a ValuePtr with a NULL pointer
 
     Node* n = dict->table[index];
 
     if(n == NULL) {
         printf("Key does not exist in this dict!\n");
-        return NULL;
+        return null_value;
     }
 
     if(strcmp(n->key, key) != 0) {
@@ -179,22 +180,22 @@ void* get(Dict *dict, char *key) {
         }
 
         printf("Key does not exist in this dict!\n");
-        return NULL;
+        return null_value;
     }
 
     return n->value;
 }
 
-void print_value(void* value, NODE_VALUE_TYPE type) {
-    switch(type) {
+void print_value(Value value) {
+    switch(value.type) {
         case PTR_INT:
-            printf("%d\n", *(int*)value);
+            printf("%d\n", value.ptr.integer);
             break;
         case PTR_STR:
-            printf("%s\n", (char*)value);
+            printf("%s\n", value.ptr.string);
             break;
         case PTR_CHAR:
-            printf("%c\n", *(char*)value);
+            printf("%c\n", value.ptr.character);
             break;
         default:
             printf("UNHANDLED_TYPE\n");
@@ -208,7 +209,7 @@ void print_dict_ordered(Dict *dict) {
         int index = dict->indicies[i];
         if(dict->table[index]!=NULL) {
             printf("i{%d}:- (%s): ", index, dict->table[index]->key);
-            print_value(dict->table[index]->value, dict->table[index]->type);
+            print_value(dict->table[index]->value);
         }
     }
     printf("=======\n");
@@ -219,7 +220,7 @@ void print_dict_unordered(Dict *dict) {
     for(int i = 0; i<dict->capacity;i++) {
         if(dict->table[i]!=NULL) {
             printf("i{%d}:- (%s): ", i, dict->table[i]->key);
-            print_value(dict->table[i]->value, dict->table[i]->type);
+            print_value(dict->table[i]->value);
         }
     }
     printf("=======\n");
@@ -228,14 +229,17 @@ void print_dict_unordered(Dict *dict) {
 struct Value integer(int value) {
     int *ptr = malloc(sizeof(int));
     ptr[0] = value;
-    struct Value i = { .ptr.integer=ptr, .type=PTR_INT };
+    struct Value i = { .ptr.integer=value, .type=PTR_INT };
     return i;
 }
 
 struct Value character(char value) {
-    char *ptr = malloc(sizeof(char));
-    ptr[0] = value;
-    struct Value i = { .ptr.character=ptr, .type=PTR_INT };
+    struct Value i = { .ptr.character=value, .type=PTR_CHAR };
+    return i;
+}
+
+struct Value string(char* value) {
+    struct Value i = { .ptr.string=value, .type=PTR_STR };
     return i;
 }
 

@@ -4,7 +4,8 @@
 #define CAPACITY 100
 #define LOAD_FACTOR 0.75
 
-typedef enum : unsigned char {
+typedef enum {
+    PTR_NULL,
     PTR_STR,
     PTR_INT,
     PTR_FLOAT,
@@ -12,16 +13,18 @@ typedef enum : unsigned char {
     PTR_CHAR,
 } NODE_VALUE_TYPE;
 
+typedef union {
+    char null;
+    char* string;
+    int integer;
+    float float_;
+    double double_;
+    char character;
+} ValuePtr;
 
 typedef struct Value {
     NODE_VALUE_TYPE type;
-    union {
-        char* str;
-        int* integer;
-        float* float_;
-        double* double_;
-        char* character;
-    } ptr;
+    ValuePtr ptr;
 } Value;
 
 typedef struct Node {
@@ -40,9 +43,10 @@ void print_value(Value);
 int set(Dict *, char *key, Value);
 int len(Dict *);
 int capacity(Dict *);
-void* get(Dict *, char *key);
+Value get(Dict *, char *key);
 int hash(char *key, int capacity);
 
+Value string(char*);
 Value integer(int);
 Value character(char);
 
