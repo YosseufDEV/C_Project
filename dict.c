@@ -6,7 +6,8 @@
 
 struct Dict {
     Node **table;
-    int *indicies;
+    Node* first;
+    Node* last;
     int size;
     int capacity;
 };
@@ -45,9 +46,8 @@ Dict* initialize_dict(int values_size, Node values[]) {
     }
 
     dict->table = calloc(capacity, sizeof *dict->table);
-    dict->indicies = calloc(capacity, sizeof *dict->table);
 
-    if(dict->table == NULL || dict->indicies == NULL) {
+    if(dict->table == NULL) {
         printf("Error: Memory allocation failed for dictionary table or indicies\n");
         return NULL;
     }
@@ -61,23 +61,13 @@ Dict* initialize_dict(int values_size, Node values[]) {
 
     for(int k = 0; k < values_size; k++) {
         if(values[k].key != NULL) {
-            set(dict, values[k].key, values[k].value);
+            set_dict(dict, values[k].key, values[k].value);
         }
     }
 
     return dict;
 }
-
-void free_dict(Dict *dict) {
-    for(int i = 0; i < dict->capacity; i++) {
-        if(dict->table[i] != NULL) {
-            free(dict->table[i]);
-        }
-    }
-    free(dict);
-}
-
-int set(Dict *dict, char *key, Value value) {
+int set_dict(Dict *dict, char *key, Value value) {
     int index = hash(key, dict->capacity);
     Node* node = malloc(sizeof(Node));
 
@@ -105,8 +95,19 @@ int set(Dict *dict, char *key, Value value) {
 
     }
 
+    node->index=index;
     dict->table[index] = node;
-    dict->indicies[dict->size++]=index;
+    dict->size++;
+
+    if(dict->size==1){
+        dict->first = dict->last = node;
+        node->prev = NULL;
+    } else {
+        dict->last->next = node;
+        node->prev = dict->last;
+        dict->last = node;
+        node->next = NULL;
+    }
 
     printf("\nindex i{%d}, inserted key %s\n", index, dict->table[index]->key);
     print_dict_unordered(dict);
@@ -139,28 +140,27 @@ int resize_dict(Dict *dict) {
         return -1;
     }
 
-    for(int i = 0, k=0; i < len(dict); i++) {
-        int indicie_index = dict->indicies[i];
+    Node *n = dict->first;
 
-        if(dict->table[indicie_index] != NULL) {
-            Node* n = dict->table[indicie_index];
-            int index = hash(n->key, new_capacity);
+    while(n != NULL) {
+        int index = hash(n->key, new_capacity);
 
-            if(new_table[index] != NULL) {
-                while(new_table[index] != NULL) {
-                    index = (index+1)%new_capacity; 
-                }
+        if(new_table[index] != NULL) {
+            while(new_table[index] != NULL) {
+                index = (index+1)%new_capacity; 
+                // printf("%d\n", index);
             }
-
-            new_table[index] = n;
-            dict->indicies[k++]=index;
-
-            printf("Rehashsed key %s from old index %d to new index %d\n", n->key, i, index);
-
         }
+
+        n->index = index;
+        printf("Rehashing key %s to index %d\n", n->key, index);
+        new_table[index] = n;
+
+        n = n->next;
     }
 
     free(dict->table);
+
     dict->capacity = new_capacity;
     dict->table = new_table;
 
@@ -170,7 +170,7 @@ int resize_dict(Dict *dict) {
     return new_capacity;
 }
 
-Value get(Dict *dict, char *key) {
+Value get_dict(Dict *dict, char *key) {
     int index = hash(key, dict->capacity);
     Node* n = dict->table[index];
 
@@ -200,13 +200,21 @@ Value get(Dict *dict, char *key) {
 
 void print_dict_ordered(Dict *dict) {
     printf("=======\n");
-    for(int i = 0; i<len(dict);i++) {
-        int index = dict->indicies[i];
-        if(dict->table[index]!=NULL) {
-            printf("i{%d}:- (%s): ", index, dict->table[index]->key);
-            print_value(dict->table[index]->value);
-        }
+    // for(int i = 0; i<len_dict(dict);i++) {
+    //     int index = dict->indicies[i];
+    //     if(dict->table[index]!=NULL) {
+    //         printf("i{%d}:- (%s): ", index, dict->table[index]->key);
+    //         print_value(dict->table[index]->value);
+    //     }
+    // }
+    Node *n = dict->first;
+
+    while(n!= NULL) {
+        printf("i{%d}:- (%s): ", n->index, n->key);
+        print_value(n->value);
+        n = n->next;
     }
+
     printf("=======\n");
 }
 
@@ -221,7 +229,23 @@ void print_dict_unordered(Dict *dict) {
     printf("=======\n");
 }
 
-int len(Dict *dict) {
+void clear_dict(Dict *dict) {
+    Node* temp = dict->last;
+    while(temp != NULL) {
+        temp = temp->prev;
+        free(dict->last);
+        dict->last = temp;
+    }
+    dict->last = dict->first = NULL;
+    // dict->last = dict->first = NULL;
+}
+
+void free_dict(Dict *dict) {
+    clear_dict(dict);
+    free(dict);
+}
+
+int len_dict(Dict *dict) {
     return dict->size;
 }
 

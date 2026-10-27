@@ -8,6 +8,9 @@
 
 typedef struct Node {
     Value value;
+    int index;
+    struct Node* next;
+    struct Node* prev;
     char* key;
 } Node;
 
@@ -19,10 +22,11 @@ int resize_dict(Dict *);
 void print_dict_unordered(Dict *);
 void print_dict_ordered(Dict *);
 void print_value(Value);
-int set(Dict *, char *key, Value);
-int len(Dict *);
-int capacity(Dict *);
-Value get(Dict *, char *key);
+void clear_dict(Dict*);
+int set_dict(Dict *, char *key, Value);
+int len_dict(Dict *);
+int capacity_dict(Dict *);
+Value get_dict(Dict *, char *key);
 int hash(char *key, int capacity);
 
 #endif
