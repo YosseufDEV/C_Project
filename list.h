@@ -15,7 +15,7 @@ void clear_list(List *);
 void reverse(List *);
 unsigned len_list(List *);
 unsigned count_list(List *, Value);
-unsigned index(List *, Value);
+unsigned index_list(List *, Value);
 void sort_list(List *);
 List* sorted_list(List *);
 

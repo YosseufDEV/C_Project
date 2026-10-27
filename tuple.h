@@ -5,11 +5,11 @@
 
 typedef struct Tuple Tuple;
 
-Tuple* initialize_tuple(int, Value[]);
+Tuple* initialize_tuple(unsigned, Value[]);
 Value get_tuple(Tuple *, int);
 unsigned len_tuple(Tuple *);
 unsigned count_tuple(Tuple *, Value);
-unsigned index(Tuple *, Value);
+int index_tuple(Tuple *, Value);
 void sort_tuple(Tuple *);
 Tuple* sorted_tuple(Tuple *);
 

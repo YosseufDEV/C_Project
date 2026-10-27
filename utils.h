@@ -28,6 +28,7 @@ typedef struct Value {
 
 typedef struct Value Value;
 
+int compare_values(Value a, Value b);
 void print_value(Value);
 Value string(char*);
 Value integer(int);
