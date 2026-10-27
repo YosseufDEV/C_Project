@@ -23,6 +23,7 @@ void print_dict_unordered(Dict *);
 void print_dict_ordered(Dict *);
 void print_value(Value);
 void clear_dict(Dict*);
+Value popitem_dict(Dict *);
 int set_dict(Dict *, char *key, Value);
 int len_dict(Dict *);
 int capacity_dict(Dict *);

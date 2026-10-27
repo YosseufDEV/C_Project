@@ -198,6 +198,28 @@ Value get_dict(Dict *dict, char *key) {
     return n->value;
 }
 
+Value popitem_dict(Dict* d) {
+    if(d->last == NULL) {
+        printf("Dictionary is empty!");
+        return null();
+    }
+
+    Value last_value = d->last->value;
+
+    Node* t = d->last->prev;
+
+    free(d->last);
+
+    if(t != NULL) {
+        d->last = t;
+        d->last->next=NULL;
+    }
+
+    d->last=d->first=NULL;
+
+    return last_value;
+}
+
 void print_dict_ordered(Dict *dict) {
     printf("=======\n");
     // for(int i = 0; i<len_dict(dict);i++) {
