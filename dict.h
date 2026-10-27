@@ -11,6 +11,7 @@ typedef enum {
     PTR_FLOAT,
     PTR_DOUBLE,
     PTR_CHAR,
+    PTR_ARBITRARY
 } NODE_VALUE_TYPE;
 
 typedef union {
@@ -19,6 +20,7 @@ typedef union {
     int integer;
     float float_;
     double double_;
+    void* ptr;
     char character;
 } ValuePtr;
 
@@ -34,7 +36,7 @@ typedef struct Node {
 
 typedef struct Dict Dict;
 
-Dict* initialize_dict(int);
+Dict* initialize_dict(int, Node[]);
 void free_dict(Dict *);
 int resize_dict(Dict *);
 void print_dict_unordered(Dict *);
@@ -48,6 +50,10 @@ int hash(char *key, int capacity);
 
 Value string(char*);
 Value integer(int);
+Value float_(float);
+Value arbitrary(void*);
+Value double_(double);
 Value character(char);
+Value null(void);
 
 #endif

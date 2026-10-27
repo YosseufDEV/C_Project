@@ -24,7 +24,14 @@ int hash(char *key, int capacity) {
     return hash % capacity;
 }
 
-Dict* initialize_dict(int capacity) {
+Dict* initialize_dict(int values_size, Node values[]) {
+    if(values_size < 0) {
+        printf("Error: Invalid values_size for dictionary\n");
+        return NULL;
+    }
+
+    const int capacity = ceil((double)values_size/LOAD_FACTOR);
+
     if(capacity <= 0) {
         printf("Error: Invalid capacity for dictionary\n");
         return NULL;
@@ -51,6 +58,13 @@ Dict* initialize_dict(int capacity) {
     for(int i = 0; i < capacity; i++) {
         dict->table[i] = NULL;
     }
+
+    for(int k = 0; k < values_size; k++) {
+        if(values[k].key != NULL) {
+            set(dict, values[k].key, values[k].value);
+        }
+    }
+
     return dict;
 }
 
@@ -158,13 +172,11 @@ int resize_dict(Dict *dict) {
 
 Value get(Dict *dict, char *key) {
     int index = hash(key, dict->capacity);
-    const Value null_value = {.ptr.null=1}; // Create a ValuePtr with a NULL pointer
-
     Node* n = dict->table[index];
 
     if(n == NULL) {
         printf("Key does not exist in this dict!\n");
-        return null_value;
+        return null();
     }
 
     if(strcmp(n->key, key) != 0) {
@@ -180,7 +192,7 @@ Value get(Dict *dict, char *key) {
         }
 
         printf("Key does not exist in this dict!\n");
-        return null_value;
+        return null();
     }
 
     return n->value;
@@ -196,6 +208,18 @@ void print_value(Value value) {
             break;
         case PTR_CHAR:
             printf("%c\n", value.ptr.character);
+            break;
+        case PTR_FLOAT: 
+            printf("%f\n", value.ptr.float_);
+            break;
+        case PTR_DOUBLE:
+            printf("%lf\n", value.ptr.double_);
+            break;
+        case PTR_NULL:
+            printf("NULL\n");
+            break;
+        case PTR_ARBITRARY:
+            printf("Arbitrary data type: %p\n", value.ptr.ptr);
             break;
         default:
             printf("UNHANDLED_TYPE\n");
@@ -227,8 +251,6 @@ void print_dict_unordered(Dict *dict) {
 }
 
 struct Value integer(int value) {
-    int *ptr = malloc(sizeof(int));
-    ptr[0] = value;
     struct Value i = { .ptr.integer=value, .type=PTR_INT };
     return i;
 }
@@ -240,6 +262,26 @@ struct Value character(char value) {
 
 struct Value string(char* value) {
     struct Value i = { .ptr.string=value, .type=PTR_STR };
+    return i;
+}
+
+struct Value float_(float value) {
+    struct Value i = { .ptr.float_=value, .type=PTR_FLOAT };
+    return i;
+}
+
+struct Value double_(double value) {
+    struct Value i = { .ptr.double_=value, .type=PTR_DOUBLE };
+    return i;
+}
+
+struct Value arbitrary(void* value) {
+    struct Value i = { .ptr.ptr=value, .type=PTR_ARBITRARY };
+    return i;
+}
+
+struct Value null(void) {
+    struct Value i = { .ptr.null=1, .type=PTR_NULL };
     return i;
 }
 
