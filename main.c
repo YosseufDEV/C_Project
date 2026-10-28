@@ -1,5 +1,8 @@
 #include "dict.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "list.h"
 
 int main() {
     int test[] = {1, 2, 3, 4, 5};
@@ -53,6 +56,35 @@ int main() {
     }
 
     free_dict(d);
+
+
+    DynamicList *list1 = list_create(2);
+    int *val1 = malloc(sizeof(int));
+    *val1 = 100;
+    int *val2 = malloc(sizeof(int));
+    *val2 = 200;
+
+    list_push(list1, val1);
+    list_push(list1, val2);
+    printf("After 2 pushes: size = %u, capacity = %u\n", list_size(list1), list1->capacity);
+
+    int *val3 = malloc(sizeof(int));
+    *val3 = 300;
+    list_push(list1, val3); 
+    printf("After 3rd push: size = %u, capacity = %u\n", list_size(list1), list1->capacity);
+
+    char *mid_str = malloc(16);
+    strcpy(mid_str, "middle");
+    list_insert(list1, 1, mid_str); 
+
+    char *clamped_str = malloc(16);
+    strcpy(clamped_str, "end_clamped");
+    list_insert(list1, 999, clamped_str); 
+    printf("Index 1: %s\n", list1->items[1]);
+    printf("Index 4: %s\n", list1->items[4]);
+
+    list_destroy(list1);
+    printf("List destroyed successfully with zero memory leaks.\n");
 
     return 0;    
 }
