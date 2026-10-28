@@ -26,7 +26,10 @@ typedef struct Value {
     ValuePtr ptr;
 } Value;
 
-void print_value(Value);
+typedef struct Value Value;
+
+int compare_values(Value a, Value b);
+void print_value(Value, int);
 Value string(char*);
 Value integer(int);
 Value float_(float);

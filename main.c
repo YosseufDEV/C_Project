@@ -1,7 +1,36 @@
 #include "dict.h"
+#include "tuple.h"
+#include "utils.h"
 #include <stdio.h>
 
 int main() {
+    Value values_t[] = {
+        integer(26),
+        string("TJjiowqjdioqw"),
+        character('t'),
+        character('t'),
+        character('t'),
+        character('t'),
+        character('t'),
+        character('t'),
+        string("TJjiowqjdioqw")
+    };
+
+
+    Tuple* t = initialize_tuple(sizeof(values_t)/sizeof(values_t[0]), values_t);
+
+    print_tuple(t);
+
+    print_value(get_tuple(t, 2), 1);
+    print_value(get_tuple(t, -1), 1);
+    printf("%d\n", index_tuple(t, character('t')));
+
+    putchar('\n');
+
+    printf("%d\n", count_tuple(t, character('t')));
+    printf("%d\n", count_tuple(t, string("TJjiowqjdioqw")));
+    printf("%d\n", count_tuple(t, integer(26)));
+
     int test[] = {1, 2, 3, 4, 5};
     Node values[] = {
         { .key = "test", .value = integer(169) },
@@ -32,28 +61,29 @@ int main() {
 
     Dict *d = initialize_dict(values_size, values);
 
-    print_dict_ordered(d);
+    popitem_dict(d);
+    popitem_dict(d);
+    popitem_dict(d);
 
-    {
-        Value value = get(d, "12903981290-id21k90kd+_)21k9-d()@$!)@(JD1289dj1");
+    print_tuple(keys_dict(d));
 
-        if(value.ptr.null != 1) {
-            print_value(value);
-        } else {
-            printf("Key does not exist in dict!\n");
-        }
-
-        Value value2 = get(d, "arbitrary_data_type");
-
-        if(value.ptr.null != 1) {
-            printf("Arbitrary data type: %d", ((int*)value2.ptr.ptr)[4]);
-        } else {
-            printf("Key does not exist in dict!\n");
-        }
-    }
-
+    // print_dict_ordered(d);
+    // // printf("Clearing dict...\n");
+    // // clear_dict(d);
+    // // print_dict_ordered(d);
+    //
+    // set_dict(d, "test1", string("This is my key"));
+    //
+    // {
+        // char*key="klaskdaop";
+    //     pop_dict(d, key);
+    //     Value v = get_dict(d,key);
+    //     print_dict_ordered(d);
+    //     print_value(v);
+    // }
+    //
     free_dict(d);
-
-    return 0;    
+    //
+    // return 0;    
 }
 
