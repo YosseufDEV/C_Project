@@ -2,6 +2,7 @@
 #define DICT_H
 
 #include "utils.h"
+#include "tuple.h"
 
 #define LOAD_FACTOR 0.75
 
@@ -21,10 +22,10 @@ void free_dict(Dict *);
 int resize_dict(Dict *);
 void print_dict_unordered(Dict *);
 void print_dict_ordered(Dict *);
-void print_value(Value);
 void clear_dict(Dict*);
 Value popitem_dict(Dict *);
 Value pop_dict(Dict*, char*);
+Tuple* keys_dict(Dict *);
 int set_dict(Dict *, char *key, Value);
 int len_dict(Dict *);
 int capacity_dict(Dict *);

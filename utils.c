@@ -62,32 +62,35 @@ struct Value null(void) {
     return i;
 }
 
-void print_value(Value value) {
+void print_value(Value value, int newline) {
     switch(value.type) {
         case PTR_INT:
-            printf("%d\n", value.ptr.integer);
+            printf("%d", value.ptr.integer);
             break;
         case PTR_STR:
-            printf("%s\n", value.ptr.string);
+            printf("\"%s\"", value.ptr.string);
             break;
         case PTR_CHAR:
-            printf("%c\n", value.ptr.character);
+            printf("'%c'", value.ptr.character);
             break;
         case PTR_FLOAT: 
-            printf("%f\n", value.ptr.float_);
+            printf("%f", value.ptr.float_);
             break;
         case PTR_DOUBLE:
-            printf("%lf\n", value.ptr.double_);
+            printf("%lf", value.ptr.double_);
             break;
         case PTR_NULL:
-            printf("NULL\n");
+            printf("NULL");
             break;
         case PTR_ARBITRARY:
-            printf("Arbitrary data type: %p\n", value.ptr.ptr);
+            printf("Arbitrary data type: %p", value.ptr.ptr);
             break;
         default:
-            printf("UNHANDLED_TYPE\n");
+            printf("UNHANDLED_TYPE");
             break;
     }
+
+    if(newline) putchar('\n');
+
 }
 

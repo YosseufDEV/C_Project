@@ -28,7 +28,7 @@ Tuple* initialize_tuple(unsigned length, Value values[]) {
 
 Value get_tuple(Tuple* t, int index) {
     if(t == NULL) {
-        fprintf(stderr, "Tuple is NULL\n");
+        fprintf(stderr, "Error: Tuple is NULL\n");
         exit(EXIT_FAILURE);
     }
 
@@ -42,7 +42,7 @@ Value get_tuple(Tuple* t, int index) {
 
 int index_tuple(Tuple* t, Value value) {
     if(t == NULL) {
-        fprintf(stderr, "Tuple is NULL\n");
+        fprintf(stderr, "Error: Tuple is NULL\n");
         exit(EXIT_FAILURE);
     }
 
@@ -56,7 +56,7 @@ int index_tuple(Tuple* t, Value value) {
 
 unsigned count_tuple(Tuple *t, Value v) {
     if(t == NULL) {
-        fprintf(stderr, "Tuple is NULL\n");
+        fprintf(stderr, "Error: Tuple is NULL\n");
         exit(EXIT_FAILURE);
     }
 
@@ -67,6 +67,33 @@ unsigned count_tuple(Tuple *t, Value v) {
             count++;
         }
     }
+
     return count;
 }
 
+void print_tuple(Tuple* t) {
+    if(t == NULL) {
+        fprintf(stderr, "Error: Tuple is NULL\n");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("(");
+    for(int i = 0; i < t->length; i++) {
+        print_value(*t->items[i], 0);
+        if(i < t->length - 1) {
+            printf(", ");
+        }
+    }
+    printf(")\n");
+}
+
+
+void free_tuple(Tuple* t) {
+    if(t == NULL) {
+        fprintf(stderr, "Error: Tuple is NULL\n");
+        exit(EXIT_FAILURE);
+    }
+
+    free(t->items);
+    free(t);
+}

@@ -70,7 +70,7 @@ Dict* initialize_dict(int values_size, Node values[]) {
 
 int set_dict(Dict *dict, char *key, Value value) {
     if(dict == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
 
@@ -135,9 +135,10 @@ int set_dict(Dict *dict, char *key, Value value) {
 
 int resize_dict(Dict *dict) {
     if(dict == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
+
     int old_capacity = dict->capacity;
     int new_capacity = ceil((double)old_capacity/LOAD_FACTOR); 
 
@@ -182,9 +183,10 @@ int resize_dict(Dict *dict) {
 
 Value get_dict(Dict *dict, char *key) {
     if(dict == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
+
     int index = hash(key, dict->capacity);
     Node* n = dict->table[index];
 
@@ -214,9 +216,10 @@ Value get_dict(Dict *dict, char *key) {
 
 Node* get_dict_ptr(Dict *dict, char *key) {
     if(dict == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
+
     int index = hash(key, dict->capacity);
     Node* n = dict->table[index];
 
@@ -246,9 +249,10 @@ Node* get_dict_ptr(Dict *dict, char *key) {
 
 Value popitem_dict(Dict* d) {
     if(d == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
+
     if(d->last == NULL) {
         printf("Dictionary is empty!");
         return null();
@@ -269,12 +273,14 @@ Value popitem_dict(Dict* d) {
         d->last=d->first=NULL;
     }
 
+    d->size--;
+
     return last_value;
 }
 
 Value pop_dict(Dict* dict, char* key) {
     if(dict == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
 
@@ -308,21 +314,24 @@ Value pop_dict(Dict* dict, char* key) {
 
     free(n);
 
+    dict->size--;
+
     return v;
 }
 
 void print_dict_ordered(Dict *dict) {
     if(dict == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
+
     printf("=======\n");
 
     Node *n = dict->first;
 
     while(n!= NULL) {
         printf("i{%d}:- (%s): ", n->index, n->key);
-        print_value(n->value);
+        print_value(n->value, 1);
         n = n->next;
     }
 
@@ -331,14 +340,15 @@ void print_dict_ordered(Dict *dict) {
 
 void print_dict_unordered(Dict *dict) {
     if(dict == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
+
     printf("=======\n");
     for(int i = 0; i<dict->capacity;i++) {
         if(dict->table[i]!=NULL) {
             printf("i{%d}:- (%s): ", i, dict->table[i]->key);
-            print_value(dict->table[i]->value);
+            print_value(dict->table[i]->value, 1);
         }
     }
     printf("=======\n");
@@ -346,9 +356,10 @@ void print_dict_unordered(Dict *dict) {
 
 void clear_dict(Dict *dict) {
     if(dict == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
+
     Node* temp = dict->last;
     while(temp != NULL) {
         temp = temp->prev;
@@ -373,25 +384,46 @@ void clear_dict(Dict *dict) {
 
 void free_dict(Dict *dict) {
     if(dict == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
+
     clear_dict(dict);
     free(dict);
 }
 
 int len_dict(Dict *dict) {
     if(dict == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
 
     return dict->size;
 }
 
+Tuple* keys_dict(Dict *dict) {
+    if(dict == NULL) {
+        fprintf(stderr, "Error: Dictionary is NULL\n");
+        exit(EXIT_FAILURE);
+    }
+
+    Value* keys = malloc(dict->size * sizeof(Value));
+
+    Node* t = dict->first;
+    int i = 0;
+
+    while(t!=NULL) {
+        keys[i++] = string(t->key); 
+        t=t->next;
+    }
+
+    return initialize_tuple(dict->size, keys);
+
+}
+
 int capacity_dict(Dict *dict) {
     if(dict == NULL) {
-        fprintf(stderr, "Dictionary is NULL\n");
+        fprintf(stderr, "Error: Dictionary is NULL\n");
         exit(EXIT_FAILURE);
     }
 

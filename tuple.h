@@ -11,6 +11,7 @@ unsigned len_tuple(Tuple *);
 unsigned count_tuple(Tuple *, Value);
 int index_tuple(Tuple *, Value);
 void sort_tuple(Tuple *);
+void print_tuple(Tuple *);
 Tuple* sorted_tuple(Tuple *);
 
 #endif
