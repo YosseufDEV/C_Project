@@ -2,8 +2,12 @@
 #include "tuple.h"
 #include "utils.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "list.h"
 
 int main() {
+    // ## Tuple ##
     Value values_t[] = {
         integer(26),
         string("TJjiowqjdioqw"),
@@ -32,6 +36,7 @@ int main() {
     printf("%d\n", count_tuple(t, integer(26)));
 
     int test[] = {1, 2, 3, 4, 5};
+
     Node values[] = {
         { .key = "test", .value = integer(169) },
         { .key = "j@()JD!()*@HJRF(*!@YHR()*!@HD(*!@Hd98!@&Hdfska", .value = integer(199) },
@@ -67,23 +72,49 @@ int main() {
 
     print_tuple(keys_dict(d));
 
+    print_dict_ordered(d);
+    // printf("Clearing dict...\n");
+    // clear_dict(d);
     // print_dict_ordered(d);
-    // // printf("Clearing dict...\n");
-    // // clear_dict(d);
-    // // print_dict_ordered(d);
-    //
-    // set_dict(d, "test1", string("This is my key"));
-    //
-    // {
-        // char*key="klaskdaop";
-    //     pop_dict(d, key);
-    //     Value v = get_dict(d,key);
-    //     print_dict_ordered(d);
-    //     print_value(v);
-    // }
-    //
+
+    set_dict(d, "test1", string("This is my key"));
+
+    {
+        char*key="klaskdaop";
+        pop_dict(d, key);
+        Value v = get_dict(d,key);
+        print_dict_ordered(d);
+        print_value(v, 1);
+    }
+
     free_dict(d);
-    //
-    // return 0;    
+
+    // # LIST;
+    printf("\n\n\n");
+
+    DynamicList *list1 = list_create(2);
+
+    list_push(list1, integer(100));
+    list_push(list1, integer(200));
+
+    list_push(list1, string("Test")); 
+
+    // list_insert(list1, 1, string("Yes")); 
+
+    list_insert(list1, 999, string("clampedstring")); 
+    list_insert(list1, 2, string("ajsdkajdsklajdkl")); 
+
+    // printf("%d\n", c);
+    print_value(list_get(list1, 0), 1);
+    print_value(list_get(list1, 1), 1);
+    print_value(list_get(list1, 2), 1);
+    print_value(list_get(list1, 3), 1);
+    print_value(list_get(list1, 999), 1);
+
+    list_print(list1);
+
+    list_destroy(list1);
+
+    return 0;    
 }
 
